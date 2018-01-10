@@ -34,19 +34,18 @@ cv::Point ObjectDetect(Mat& img)
 {
 	std::vector<Rect> faces;
 	Mat grayImg;
+	Point center(0, 0);
 	cvtColor( img, grayImg, COLOR_BGR2GRAY ); //转换成灰度图
 	equalizeHist( grayImg, grayImg ); //直方图均衡化，拉伸像素使其分布到0-255,增加对比度
 	faceCascade.detectMultiScale( grayImg, faces, 1.1, 2, 0|CASCADE_SCALE_IMAGE, Size(30, 30) ); //进行人脸检测
 	if(faces.size() == 1) //检测到一个人脸，则返回人脸坐标
 	{
-		Point center(faces[0].x + faces[0].width/2, faces[0].y + faces[0].height/2);
-		cout<< center.x << "," << center.y <<endl;
+		center.x = faces[0].x + faces[0].width/2;
+		center.y = faces[0].y + faces[0].height/2;
 		return center;
 	}
 	else
 	{
-		Point center(0, 0);
-		cout<< center.x << "," << center.y <<endl;
 		return center;
 	}
 		
@@ -79,9 +78,10 @@ void ImgProcCallback(const ImageConstPtr& left, const ImageConstPtr& right)
 
 	//使用opencv中的算法检测人脸
 	cv::Point leftPoint = ObjectDetect(cv_left->image);
+	cout<< "L:" << leftPoint.x << "," << leftPoint.y <<endl;
 	cv::Point rightPoint = ObjectDetect(cv_right->image);
+	cout<< "R:" << rightPoint.x << "," << rightPoint.y <<endl;
 
-	
 
 	//发布得到的目标坐标点
 //	leftPointPub.publish();
