@@ -1,8 +1,8 @@
-//ROS和CV之间图像转换
+//ROS和CV之间图像转换（Callback中）
 //http://wiki.ros.org/cv_bridge/Tutorials/UsingCvBridgeToConvertBetweenROSImagesAndOpenCVImages
-//message_filters
+//message_filters（main中，这个参考了开源代码，但没调试成功）
 //http://wiki.ros.org/message_filters
-//image_transport
+//image_transport(main中)
 //http://wiki.ros.org/image_transport
 //Publisher and Subscriber 
 //http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29
@@ -62,12 +62,12 @@ RotatedRect ObjectDetect(Mat& img)
 		
 }
 
-void leftImageCallback(const ImageConstPtr& left)
+void leftImageCallback(const sensor_msgs::ImageConstPtr& left)
 {
 	cv_bridge::CvImagePtr cv_left;
 	try
 	{
-	  cv_left = cv_bridge::toCvCopy(left);
+	  cv_left = cv_bridge::toCvCopy(left, sensor_msgs::image_encodings::BGR8);
 	}
 	catch (cv_bridge::Exception& e) //如果抛出这种异常，则打印如下错误信息，并退出
 	{
@@ -81,9 +81,11 @@ void leftImageCallback(const ImageConstPtr& left)
 //	leftPointPub.publish(); //发布得到的目标坐标点
 	
 //	ellipse( cv_left->image, leftPoint, Size( faces[i].width/2, faces[i].height/2 ), 0, 0, 360, Scalar( 255, 0, 255 ), 4, 8, 0 );
-	ellipse( cv_left->image, leftFaceRectangle, Scalar( 255, 0, 255 ), 4, 8);
-	sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cv_left->image).toImageMsg();
-	leftProcImgPub.publish(msg); //发布处理后的图像
+	cv::ellipse( cv_left->image, leftFaceRectangle, Scalar( 255, 0, 255 ), 4, 8);
+//	cv::imshow("leftImg", cv_left->image);
+//	cv::waitKey(3);
+//	sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bg", cv_left->image).toImageMsg();
+	leftProcImgPub.publish(cv_left->toImageMsg()); //发布处理后的图像
 }
 
 void rightImageCallback(const ImageConstPtr& right)
@@ -91,7 +93,7 @@ void rightImageCallback(const ImageConstPtr& right)
 	cv_bridge::CvImagePtr cv_right;
 	try
 	{
-	  cv_right = cv_bridge::toCvCopy(right);
+	  cv_right = cv_bridge::toCvCopy(right, sensor_msgs::image_encodings::BGR8);
 	}
 	catch (cv_bridge::Exception& e) //如果抛出这种异常，则打印如下错误信息，并退出
 	{
@@ -106,8 +108,8 @@ void rightImageCallback(const ImageConstPtr& right)
 	
 //	ellipse( cv_left->image, leftPoint, Size( faces[i].width/2, faces[i].height/2 ), 0, 0, 360, Scalar( 255, 0, 255 ), 4, 8, 0 );
 	ellipse( cv_right->image, rightFaceRectangle, Scalar( 255, 0, 255 ), 4, 8);
-	sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cv_right->image).toImageMsg();
-	rightProcImgPub.publish(msg); //发布处理后的图像
+//	sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cv_right->image).toImageMsg();
+	rightProcImgPub.publish(cv_right->toImageMsg()); //发布处理后的图像
 }
 
 /*
@@ -160,10 +162,10 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "find_target_in_images"); //节点名称：show_target_position
 	ros::NodeHandle nh; //创建与master通信的节点
 	image_transport::ImageTransport it(nh); //使用image_transport传输图像
-	ros::Publisher leftPointPub = nh.advertise<geometry_msgs::Point>("left_2Dposition", 1); //发布话题：left_2Dposition
-	ros::Publisher rightPointPub = nh.advertise<geometry_msgs::Point>("right_2Dposition", 1); //发布话题：right_2Dposition
-	image_transport::Publisher leftProcImgPub = it.advertise("left_processed_image", 1); //发布话题，用来传输处理过的图像
-	image_transport::Publisher rightProcImgPub = it.advertise("right_processed_image", 1); //发布话题
+//	ros::Publisher leftPointPub = nh.advertise<geometry_msgs::Point>("left_2Dposition", 1); //发布话题：left_2Dposition
+//	ros::Publisher rightPointPub = nh.advertise<geometry_msgs::Point>("right_2Dposition", 1); //发布话题：right_2Dposition
+	leftProcImgPub = it.advertise("left_processed_image", 1); //发布话题，用来传输处理过的图像
+	rightProcImgPub = it.advertise("right_processed_image", 1); //发布话题
 	//	ros::Subscriber leftImage = n.subscribe<Image>("/left_cam/image_raw", Image, leftImgProcCallback); //订阅话题
 	//	ros::Subscriber rightImage = n.subscribe<Image>("/right_cam/image_raw", Image, rightImgProcCallback); //订阅话题
 	image_transport::Subscriber leftRawImg = it.subscribe("/left_cam/image_raw", 1, leftImageCallback); //订阅左图像话题
@@ -174,6 +176,7 @@ int main(int argc, char **argv)
 	//	TimeSynchronizer<Image, Image> sync(leftRawImgSub, leftRawImgSub, 1);
 	//	sync.registerCallback(boost::bind(&ImgProcCallback, _1, _2)); //放到一个回调函数中
 	//这部分参考https://github.com/rachillesf/stereoMagic/blob/master/src/stereo_node.cpp但是调试下来发现只处理了一个摄像头的图像
+//	cv::namedWindow("leftImg");
 	while(ros::ok())
 	{
 		ros::spin();
