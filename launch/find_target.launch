@@ -26,8 +26,9 @@
 		<param name="image_width" value="640" />
 		<param name="image_height" value="480" />
 	</node>
-<!--	
+<!-- 	
 	<node name="find_target_in_images_node" pkg="stereo_vision" type="find_target_in_images">
+		<param name="face_cascade_name" type="string" value="file://$(find stereo_vision)/haarcascade_frontalface_alt.xml" />
 	</node>
 -->
 </launch>

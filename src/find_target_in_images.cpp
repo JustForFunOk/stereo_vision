@@ -7,6 +7,7 @@
 //Publisher and Subscriber 
 //http://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28c%2B%2B%29
 #include <ros/ros.h>
+//#include <geometry_msgs/Polygon.h> //多边形 消息类型
 #include <geometry_msgs/Point.h> //点 消息类型
 #include <image_transport/image_transport.h> //图像传输
 #include <sensor_msgs/Image.h> //图像 消息类型
@@ -29,8 +30,10 @@ using namespace std;
 //全局变量
 cv::CascadeClassifier faceCascade;
 const std::string face_cascade_name = "haarcascade_frontalface_alt.xml";
-//ros::Publisher leftPointPub, rightPointPub;
+//std::string face_cascade_name;
+ros::Publisher leftPointPub, rightPointPub;
 image_transport::Publisher leftProcImgPub, rightProcImgPub;
+
 
 //检测
 RotatedRect ObjectDetect(Mat& img)
@@ -74,16 +77,19 @@ void leftImageCallback(const sensor_msgs::ImageConstPtr& left)
 	  ROS_ERROR("cv_bridge exception: %s", e.what());
 	  return;
 	}
-
+	
+	//Polygon facePostion; //人脸位置
+	geometry_msgs::Point leftObjectCenter;
 	//使用opencv中的算法检测人脸
 	RotatedRect leftFaceRectangle = ObjectDetect(cv_left->image);
+	leftObjectCenter.x = leftFaceRectangle.center.x;
+	leftObjectCenter.y = leftFaceRectangle.center.y;
+	leftObjectCenter.z = 0;
 	cout<< "L:" << leftFaceRectangle.center.x << "," << leftFaceRectangle.center.y <<endl;	
-//	leftPointPub.publish(); //发布得到的目标坐标点
+	leftPointPub.publish(leftObjectCenter); //发布得到的目标坐标点
 	
 //	ellipse( cv_left->image, leftPoint, Size( faces[i].width/2, faces[i].height/2 ), 0, 0, 360, Scalar( 255, 0, 255 ), 4, 8, 0 );
-	cv::ellipse( cv_left->image, leftFaceRectangle, Scalar( 255, 0, 255 ), 4, 8);
-//	cv::imshow("leftImg", cv_left->image);
-//	cv::waitKey(3);
+	cv::ellipse( cv_left->image, leftFaceRectangle, Scalar( 255, 0, 255 ), 4, 8); //在图像上画椭圆
 //	sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bg", cv_left->image).toImageMsg();
 	leftProcImgPub.publish(cv_left->toImageMsg()); //发布处理后的图像
 }
@@ -101,13 +107,18 @@ void rightImageCallback(const ImageConstPtr& right)
 	  return;
 	}
 
+	//Polygon facePostion; //人脸位置
+	geometry_msgs::Point rightObjectCenter;
 	//使用opencv中的算法检测人脸
 	RotatedRect rightFaceRectangle = ObjectDetect(cv_right->image);
+	rightObjectCenter.x = rightFaceRectangle.center.x;
+	rightObjectCenter.y = rightFaceRectangle.center.y;
+	rightObjectCenter.z = 0;
 	cout<< "R:" << rightFaceRectangle.center.x << "," << rightFaceRectangle.center.y <<endl;	
-//	leftPointPub.publish(); //发布得到的目标坐标点
+	rightPointPub.publish(rightObjectCenter); //发布得到的目标坐标点
 	
 //	ellipse( cv_left->image, leftPoint, Size( faces[i].width/2, faces[i].height/2 ), 0, 0, 360, Scalar( 255, 0, 255 ), 4, 8, 0 );
-	ellipse( cv_right->image, rightFaceRectangle, Scalar( 255, 0, 255 ), 4, 8);
+	ellipse( cv_right->image, rightFaceRectangle, Scalar( 255, 0, 255 ), 4, 8); //在图像上画椭圆
 //	sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", cv_right->image).toImageMsg();
 	rightProcImgPub.publish(cv_right->toImageMsg()); //发布处理后的图像
 }
@@ -155,15 +166,20 @@ void ImgProcCallback(const ImageConstPtr& left, const ImageConstPtr& right)
 
 int main(int argc, char **argv)
 {
+	ros::init(argc, argv, "find_target_in_images"); //节点名称：show_target_position
+	ros::NodeHandle nh; //创建与master通信的节点
+	image_transport::ImageTransport it(nh); //使用image_transport传输图像
+//	if(nh.getParam("/face_cascade_name", face_cascade_name))
+//	{ return -1;}
+//	node_.param("camera_info_url", camera_info_url_, std::string(""));
+//	nh.param("face_cascade_name", face_cascade_name, std::string(""));
 	//加载训练好的用来人脸检测的文件
 	if( !faceCascade.load(face_cascade_name) ){ ROS_ERROR("--(!)Error loading face cascade\n"); return -1; };
 	//  if( !eyes_cascade.load("./haarcascade_eye_tree_eyeglasses.xml") ){ printf("--(!)Error loading eyes cascade\n"); return -1; };
 
-	ros::init(argc, argv, "find_target_in_images"); //节点名称：show_target_position
-	ros::NodeHandle nh; //创建与master通信的节点
-	image_transport::ImageTransport it(nh); //使用image_transport传输图像
-//	ros::Publisher leftPointPub = nh.advertise<geometry_msgs::Point>("left_2Dposition", 1); //发布话题：left_2Dposition
-//	ros::Publisher rightPointPub = nh.advertise<geometry_msgs::Point>("right_2Dposition", 1); //发布话题：right_2Dposition
+
+	leftPointPub = nh.advertise<geometry_msgs::Point>("left_2Dposition", 1); //发布话题：left_2Dposition
+	rightPointPub = nh.advertise<geometry_msgs::Point>("right_2Dposition", 1); //发布话题：right_2Dposition
 	leftProcImgPub = it.advertise("left_processed_image", 1); //发布话题，用来传输处理过的图像
 	rightProcImgPub = it.advertise("right_processed_image", 1); //发布话题
 	//	ros::Subscriber leftImage = n.subscribe<Image>("/left_cam/image_raw", Image, leftImgProcCallback); //订阅话题
