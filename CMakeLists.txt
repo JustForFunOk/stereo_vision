@@ -142,6 +142,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/stereo_vision_node.cpp)
 add_executable(show_target_3Dposition src/show_target_3Dposition.cpp)
 add_executable(find_target_in_images  src/find_target_in_images.cpp) 
+add_executable(cal_target_3Dposition  src/cal_target_3Dposition.cpp) 
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -160,6 +161,7 @@ add_executable(find_target_in_images  src/find_target_in_images.cpp)
 target_link_libraries(show_target_3Dposition ${catkin_LIBRARIES})
 target_link_libraries(find_target_in_images ${catkin_LIBRARIES})
 target_link_libraries(find_target_in_images ${OpenCV_LIBS} )
+target_link_libraries(cal_target_3Dposition ${catkin_LIBRARIES})
 
 #############
 ## Install ##
