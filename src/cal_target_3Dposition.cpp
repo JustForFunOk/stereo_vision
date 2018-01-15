@@ -38,7 +38,7 @@ void rightPointCallback(const geometry_msgs::Point& rightPoint)
 void CalTargetPos(geometry_msgs::Point& leftPoint, geometry_msgs::Point& rightPoint)
 {
   target3DPosition.header.frame_id = "/map";
-  target3DPosition.header.stamp = ros::Time::now;
+  target3DPosition.header.stamp = ros::Time::now();
   if(leftPoint.x == rightPoint.x)
   {
 	 target3DPosition.point.x = 0;
