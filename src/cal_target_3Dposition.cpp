@@ -11,8 +11,9 @@
 #include <stdio.h>
 
 //！！！使用之前需要根据实际情况修改以下参数
+#define SUBSCRIBE_FREQUENCY 5 //计算3D坐标的频率，根据图像2D坐标发布频率调节
 #define CAMERA_MODEL_FX 500 //相机模型中fx的值，标定得到
-#define DISTANCE_BETWEEN_CAMERAS 50 //两摄像头之间的距离，标定得到
+#define DISTANCE_BETWEEN_CAMERAS 0.1 //（单位：m）两摄像头之间的距离，标定得到
 #define IMAGE_WIDTH 640 //图像宽度
 #define MODEL_PARAMETER (CAMERA_MODEL_FX * DISTANCE_BETWEEN_CAMERAS) 
 using namespace std;
@@ -39,7 +40,7 @@ void CalTargetPos(geometry_msgs::Point& leftPoint, geometry_msgs::Point& rightPo
 {
   target3DPosition.header.frame_id = "/map";
   target3DPosition.header.stamp = ros::Time::now();
-  if(leftPoint.x == rightPoint.x)
+  if(leftPoint.x ==0 || rightPoint.x == 0 || leftPoint.x == rightPoint.x)//这三种情况下不能计算
   {
 	 target3DPosition.point.x = 0;
 	 target3DPosition.point.y = 0;
@@ -58,7 +59,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "cal_target_3Dposition"); //节点名称：cal_target_3Dposition
   ros::NodeHandle nh; //创建与master通信的节点
-  ros::Rate r(5); //执行频率10Hz
+  ros::Rate r(SUBSCRIBE_FREQUENCY); //执行频率5Hz
   target3DPositionPub = nh.advertise<geometry_msgs::PointStamped>("target_3Dposition", 1); //发布话题：target_3Dposition
   ros::Subscriber left2DPositionSub = nh.subscribe("/left_2Dposition", 1, leftPointCallback); //订阅左图像话题
   ros::Subscriber right2DPositionSub = nh.subscribe("/right_2Dposition", 1, rightPointCallback); //订阅右图像话题
