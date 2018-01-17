@@ -85,7 +85,7 @@ void leftImageCallback(const sensor_msgs::ImageConstPtr& left)
 	leftObjectCenter.x = leftFaceRectangle.center.x;
 	leftObjectCenter.y = leftFaceRectangle.center.y;
 	leftObjectCenter.z = 0;
-	cout<< "L:" << leftFaceRectangle.center.x << "," << leftFaceRectangle.center.y <<endl;	
+//	cout<< "L:" << leftFaceRectangle.center.x << "," << leftFaceRectangle.center.y <<endl;	
 	leftPointPub.publish(leftObjectCenter); //发布得到的目标坐标点
 	
 //	ellipse( cv_left->image, leftPoint, Size( faces[i].width/2, faces[i].height/2 ), 0, 0, 360, Scalar( 255, 0, 255 ), 4, 8, 0 );
@@ -114,7 +114,7 @@ void rightImageCallback(const ImageConstPtr& right)
 	rightObjectCenter.x = rightFaceRectangle.center.x;
 	rightObjectCenter.y = rightFaceRectangle.center.y;
 	rightObjectCenter.z = 0;
-	cout<< "R:" << rightFaceRectangle.center.x << "," << rightFaceRectangle.center.y <<endl;	
+//	cout<< "R:" << rightFaceRectangle.center.x << "," << rightFaceRectangle.center.y <<endl;	
 	rightPointPub.publish(rightObjectCenter); //发布得到的目标坐标点
 	
 //	ellipse( cv_left->image, leftPoint, Size( faces[i].width/2, faces[i].height/2 ), 0, 0, 360, Scalar( 255, 0, 255 ), 4, 8, 0 );
@@ -184,8 +184,8 @@ int main(int argc, char **argv)
 	rightProcImgPub = it.advertise("right_processed_image", 1); //发布话题
 	//	ros::Subscriber leftImage = n.subscribe<Image>("/left_cam/image_raw", Image, leftImgProcCallback); //订阅话题
 	//	ros::Subscriber rightImage = n.subscribe<Image>("/right_cam/image_raw", Image, rightImgProcCallback); //订阅话题
-	image_transport::Subscriber leftRawImg = it.subscribe("/left_cam/image_raw", 1, leftImageCallback); //订阅左图像话题
-	image_transport::Subscriber rightRawImg = it.subscribe("/right_cam/image_raw", 1, rightImageCallback); //订阅左图像话题
+	image_transport::Subscriber leftRawImg = it.subscribe("/left_cam/image_rect", 1, leftImageCallback); //订阅左图像话题 monochrome
+	image_transport::Subscriber rightRawImg = it.subscribe("/right_cam/image_rect", 1, rightImageCallback); //订阅左图像话题 monochrome
 	//这部分参考https://github.com/rachillesf/stereoMagic/blob/master/src/stereo_node.cpp但是调试下来发现只处理了一个摄像头的图像
 	//	message_filters::Subscriber<Image> leftRawImgSub(nh, "/left_cam/image_raw", 1);
 	//	message_filters::Subscriber<Image> rightRawImgSub(nh, "/right_cam/image_raw", 1);
