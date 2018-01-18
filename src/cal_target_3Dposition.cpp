@@ -12,7 +12,7 @@
 
 //！！！使用之前需要根据实际情况修改以下参数
 #define SUBSCRIBE_FREQUENCY 5 //计算3D坐标的频率，根据图像2D坐标发布频率调节
-#define CAMERA_MODEL_FX 500 //相机模型中fx的值，标定得到
+#define CAMERA_MODEL_FX 538.4 //相机模型中fx的值，标定得到
 #define DISTANCE_BETWEEN_CAMERAS 0.1 //（单位：m）两摄像头之间的距离，标定得到
 #define IMAGE_WIDTH 640 //图像宽度
 #define MODEL_PARAMETER (CAMERA_MODEL_FX * DISTANCE_BETWEEN_CAMERAS) 

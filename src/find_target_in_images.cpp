@@ -29,7 +29,7 @@ using namespace std;
 
 //全局变量
 cv::CascadeClassifier faceCascade;
-const std::string face_cascade_name = "haarcascade_frontalface_alt.xml";
+const std::string face_cascade_name = "/home/sj/haarcascade_frontalface_alt.xml";
 //std::string face_cascade_name;
 ros::Publisher leftPointPub, rightPointPub;
 image_transport::Publisher leftProcImgPub, rightProcImgPub;

@@ -1,8 +1,8 @@
 <launch>
 	<node pkg="tf" type="static_transform_publisher" 
-		name="left_cam_tf" args="0 0 1.0 -1.570796 0 -1.570796 /map /left_camera 30"/>
+		name="left_cam_tf" args="-0.05 0 1.0 0 0 0 /map /L 30"/>
 	<node pkg="tf" type="static_transform_publisher" 
-		name="right_cam_tf" args="0.0 -0.25 1.0 -1.570796 0 -1.570796 /map /right_camera 30"/>
+		name="right_cam_tf" args="0.05 0 1.0 0 0 0 /map /R 30"/>
 		
 	<!-- Left Camera -->
 	<!-- These cameras have 15 fps it seems despite frame rate option-->
@@ -32,12 +32,11 @@
 
 	<node ns="right_cam" name="right_rectified_image" pkg="image_proc" type="image_proc">
 	</node>
-<!-- 	
+
 	<node name="find_target_in_images_node" pkg="stereo_vision" type="find_target_in_images">
-		<param name="face_cascade_name" type="string" value="file://$(find stereo_vision)/haarcascade_frontalface_alt.xml" />
 	</node>
 
 	<node name="cal_target_3Dposition_node" pkg="stereo_vision" type="cal_target_3Dposition">
 	</node>
--->	
+	
 </launch>
