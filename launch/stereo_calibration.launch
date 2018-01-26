@@ -1,25 +1,35 @@
 <launch>
 
+	<arg name="camera" default="/my_stereo"/>
+
 	<!-- Left Camera -->
 	<!-- These cameras have 15 fps it seems despite frame rate option-->
-	<node name="left_cam" pkg="usb_cam" type="usb_cam_node">
+	<node ns="$(arg camera)" name="left" pkg="usb_cam" type="usb_cam_node">
 		<param name="video_device" value="/dev/video1" />
 		<param name="camera_frame_id" value="left_camera" />
 		<param name="pixel_format" value="yuyv" />
 		<param name="framerate" value="30" />
-		<param name="image_width" value="640" />
-		<param name="image_height" value="480" />
+		<param name="image_width" value="1920" />
+		<param name="image_height" value="1080" />
 	</node>
 
 	<!-- Right Camera -->
-	<node name="right_cam" pkg="usb_cam" type="usb_cam_node">
+	<node ns="$(arg camera)" name="right" pkg="usb_cam" type="usb_cam_node">
 		<param name="video_device" value="/dev/video0" />
 		<param name="camera_frame_id" value="right_camera" />
 		<param name="pixel_format" value="yuyv" />
 		<param name="framerate" value="30" />
-		<param name="image_width" value="640" />
-		<param name="image_height" value="480" />
+		<param name="image_width" value="1920" />
+		<param name="image_height" value="1080" />
 	</node>
 
+	<node ns="$(arg camera)" name="cameracalibrator"
+          pkg="camera_calibration" type="cameracalibrator.py"
+          args="--approximate=0.01 --size 8x6 --square 0.028" output="screen">
+      <remap from="left" to="left/image_raw"/>
+      <remap from="right" to="right/image_raw"/>
+      <remap from="left_camera" to="left"/>
+      <remap from="right_camera" to="right"/>
+    </node>
 	
 </launch>
