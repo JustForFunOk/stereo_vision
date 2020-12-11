@@ -1,4 +1,4 @@
-# stereo vision based on EOS
+# Stereo Vision based on ROS
 
 ## Hardware
 
