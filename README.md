@@ -16,9 +16,9 @@ two independent usb cameras.
 
 ### t2
 
-![stereo_vision2](./demo/stereo_vision1.png)
+![stereo_vision2](./demo/stereo_vision2.png)
 
 
 ### t3
 
-![stereo_vision3](./demo/stereo_vision1.png)
+![stereo_vision3](./demo/stereo_vision3.png)
